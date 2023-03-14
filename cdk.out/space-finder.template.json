@@ -1,5 +1,248 @@
 {
  "Resources": {
+  "spaceapiEDF6DE5C": {
+   "Type": "AWS::ApiGateway::RestApi",
+   "Properties": {
+    "Name": "spaceapi"
+   },
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/Resource"
+   }
+  },
+  "spaceapiCloudWatchRoleB8FAFDB5": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "apigateway.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+       ]
+      ]
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/CloudWatchRole/Resource"
+   }
+  },
+  "spaceapiAccountF7BF4A71": {
+   "Type": "AWS::ApiGateway::Account",
+   "Properties": {
+    "CloudWatchRoleArn": {
+     "Fn::GetAtt": [
+      "spaceapiCloudWatchRoleB8FAFDB5",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "spaceapiEDF6DE5C"
+   ],
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/Account"
+   }
+  },
+  "spaceapiDeploymentC955AA05dc58b790d08a5c71a3465af30129ea08": {
+   "Type": "AWS::ApiGateway::Deployment",
+   "Properties": {
+    "RestApiId": {
+     "Ref": "spaceapiEDF6DE5C"
+    },
+    "Description": "Automatically created by the RestApi construct"
+   },
+   "DependsOn": [
+    "spaceapihelloGET2BBDDF89",
+    "spaceapihelloECEFFA81"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/Deployment/Resource"
+   }
+  },
+  "spaceapiDeploymentStageprod86AAA4A7": {
+   "Type": "AWS::ApiGateway::Stage",
+   "Properties": {
+    "RestApiId": {
+     "Ref": "spaceapiEDF6DE5C"
+    },
+    "DeploymentId": {
+     "Ref": "spaceapiDeploymentC955AA05dc58b790d08a5c71a3465af30129ea08"
+    },
+    "StageName": "prod"
+   },
+   "DependsOn": [
+    "spaceapiAccountF7BF4A71"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/DeploymentStage.prod/Resource"
+   }
+  },
+  "spaceapihelloECEFFA81": {
+   "Type": "AWS::ApiGateway::Resource",
+   "Properties": {
+    "ParentId": {
+     "Fn::GetAtt": [
+      "spaceapiEDF6DE5C",
+      "RootResourceId"
+     ]
+    },
+    "PathPart": "hello",
+    "RestApiId": {
+     "Ref": "spaceapiEDF6DE5C"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/Default/hello/Resource"
+   }
+  },
+  "spaceapihelloGETApiPermissionspacefinderspaceapi28F33A36GEThelloE7C0F01C": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "hellolamda242D402C",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "spaceapiEDF6DE5C"
+       },
+       "/",
+       {
+        "Ref": "spaceapiDeploymentStageprod86AAA4A7"
+       },
+       "/GET/hello"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/Default/hello/GET/ApiPermission.spacefinderspaceapi28F33A36.GET..hello"
+   }
+  },
+  "spaceapihelloGETApiPermissionTestspacefinderspaceapi28F33A36GEThelloAE461619": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "hellolamda242D402C",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":execute-api:",
+       {
+        "Ref": "AWS::Region"
+       },
+       ":",
+       {
+        "Ref": "AWS::AccountId"
+       },
+       ":",
+       {
+        "Ref": "spaceapiEDF6DE5C"
+       },
+       "/test-invoke-stage/GET/hello"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/Default/hello/GET/ApiPermission.Test.spacefinderspaceapi28F33A36.GET..hello"
+   }
+  },
+  "spaceapihelloGET2BBDDF89": {
+   "Type": "AWS::ApiGateway::Method",
+   "Properties": {
+    "HttpMethod": "GET",
+    "ResourceId": {
+     "Ref": "spaceapihelloECEFFA81"
+    },
+    "RestApiId": {
+     "Ref": "spaceapiEDF6DE5C"
+    },
+    "AuthorizationType": "NONE",
+    "Integration": {
+     "IntegrationHttpMethod": "POST",
+     "Type": "AWS_PROXY",
+     "Uri": {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":apigateway:",
+        {
+         "Ref": "AWS::Region"
+        },
+        ":lambda:path/2015-03-31/functions/",
+        {
+         "Fn::GetAtt": [
+          "hellolamda242D402C",
+          "Arn"
+         ]
+        },
+        "/invocations"
+       ]
+      ]
+     }
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "space-finder/spaceapi/Default/hello/GET/Resource"
+   }
+  },
   "hellolamdaServiceRole5B8E4524": {
    "Type": "AWS::IAM::Role",
    "Properties": {
@@ -65,12 +308,40 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/zWOzQ6CMBCEn8V7WUWj4SokPgA+ACntSpafbcK2emh4dwuE08zOl83MFR4FXE76J5mxQzZSC/HttRlUipo46qm1GuIrsPHkWFUfPvyiSE8QazfiGq+6KLk1WgS9wHOVdEMZzIC+1JJwjeLCbFBtNBV1xN32fYDkK8eW9gZ2FqGX8zcvIL+nob0QZXNgTxNCvesfVS9/Y8QAAAA="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WQ0U7DMAxFv4X31DAQaK/dJt6mofEBU5aa4rVJqtphmqr+Ow4BsT353Cvn5sqP8LKEhzt75so1XdXTEaZ3sa4zah0mO1BrBc/2AtMeWeqBzPojXGHtXExBzAaHPl48Kqp7pTStxewV0KcxjQ5Xlv/Fb2bhLcpnbLJVaDZkvX4f+7Kncza99cfGwqTGG46emCkG85qCkwxq//Fs+OlgmVEY6jxUwyq5DiV3mG9K7JIMSczPXu5Lob3ppryOoaESHGKDcOL7r8USFs96xhMTVaOegzzCvsxvldHo9WIBAAA="
    },
    "Metadata": {
     "aws:cdk:path": "space-finder/CDKMetadata/Default"
    },
    "Condition": "CDKMetadataAvailable"
+  }
+ },
+ "Outputs": {
+  "spaceapiEndpoint7480361F": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "spaceapiEDF6DE5C"
+      },
+      ".execute-api.",
+      {
+       "Ref": "AWS::Region"
+      },
+      ".",
+      {
+       "Ref": "AWS::URLSuffix"
+      },
+      "/",
+      {
+       "Ref": "spaceapiDeploymentStageprod86AAA4A7"
+      },
+      "/"
+     ]
+    ]
+   }
   }
  },
  "Conditions": {
